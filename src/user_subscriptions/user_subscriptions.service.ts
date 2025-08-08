@@ -1,4 +1,4 @@
-import { BadRequestException, ForbiddenException, Injectable } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserSubscriptionDto } from './dto/create-user_subscription.dto';
 import { UpdateUserSubscriptionDto } from './dto/update-user_subscription.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -82,16 +82,54 @@ async create(
   }
 
 
-  findAll() {
-    return `This action returns all userSubscriptions`;
+  async findAll(query : any) {
+    
+const whereClause = {
+  ...(query.type ? { status: query.type } : {}),
+  ...(query.statusCourse ? { user: { course_status: query.statusCourse } } : {})
+};
+
+const user_subscription = await this.userSubscriptionRepository.find({
+  where: whereClause,
+  relations: ['user', 'subscription_package']
+});
+
+return user_subscription;
+
   }
 
   findOne(id: number) {
     return `This action returns a #${id} userSubscription`;
   }
 
-  update(id: number, updateUserSubscriptionDto: UpdateUserSubscriptionDto) {
-    return `This action updates a #${id} userSubscription`;
+  async update(id: number, query : any) {
+    
+    try{
+
+      const update = this.userSubscriptionRepository.update({subscription_id : id}  , {status : query.status})
+      
+
+       const existing = await this.userSubscriptionRepository.findOne({
+    where: { subscription_id: id },
+    relations: ['user'],
+  });
+
+   if (!existing) {
+      throw new NotFoundException('الباقة غير موجودة');
+    }
+
+  const user = existing.user
+
+       user.course_status = 'Pending'
+
+       this.userRepository.save(user)
+
+
+      return update
+
+    }catch(err){
+      throw new BadRequestException(err)
+    }
   }
 
   remove(id: number) {

@@ -14,8 +14,34 @@ export class CoachCommunicationsService {
     @InjectRepository(CoachCommunication) private Repocommunication : Repository<CoachCommunication>,
 
   ){}
-  create(createCoachCommunicationDto: CreateCoachCommunicationDto) {
-    return 'This action adds a new coachCommunication';
+  
+  async create(createCoachCommunicationDto: CreateCoachCommunicationDto , file) {
+    
+    if(file != null){
+      createCoachCommunicationDto.barcode_img = file.path
+    }
+
+    const profile = await this.Repocommunication.find()
+
+
+    if(!profile.length){
+
+      const create = await this.Repocommunication.create(createCoachCommunicationDto)
+
+      this.Repocommunication.save(create)
+
+      return create
+
+    }else{
+
+      const update = this.Repocommunication.update({communication_id : 1} , createCoachCommunicationDto)
+
+      return createCoachCommunicationDto
+
+    }
+
+
+    
   }
 
   findAll() {

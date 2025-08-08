@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, HttpStatus, UseGuards, SetMetadata, Request, UseInterceptors, BadRequestException, UploadedFile, ParseFilePipe, FileTypeValidator, MaxFileSizeValidator } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode, HttpStatus, UseGuards, SetMetadata, Request, UseInterceptors, BadRequestException, UploadedFile, ParseFilePipe, FileTypeValidator, MaxFileSizeValidator, Query, Put } from '@nestjs/common';
 import { UserSubscriptionsService } from './user_subscriptions.service';
 import { CreateUserSubscriptionDto } from './dto/create-user_subscription.dto';
 import { UpdateUserSubscriptionDto } from './dto/update-user_subscription.dto';
@@ -55,8 +55,8 @@ export class UserSubscriptionsController {
   }
 
   @Get()
-  findAll() {
-    return this.userSubscriptionsService.findAll();
+  findAll( @Query() query: any) {
+    return this.userSubscriptionsService.findAll(query);
   }
 
   @Get(':id')
@@ -64,9 +64,10 @@ export class UserSubscriptionsController {
     return this.userSubscriptionsService.findOne(+id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserSubscriptionDto: UpdateUserSubscriptionDto) {
-    return this.userSubscriptionsService.update(+id, updateUserSubscriptionDto);
+  @Put(':id')
+  update(@Param('id') id: string, @Query() query:any) {
+    
+    return this.userSubscriptionsService.update(+id, query);
   }
 
   @Delete(':id')

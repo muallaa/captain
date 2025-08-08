@@ -166,8 +166,10 @@ export class UserService {
     return `This action returns all user`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  async findOne(id: number) {
+    const user = await this.userRepository.findOne({ where: { user_id: id }  , relations : ['body_pictures' , 'subscriptions']});
+
+    return user
   }
 
   
@@ -223,4 +225,36 @@ async update(id: number, updateUserDto: UpdateUserDto, currentUser: { sub: numbe
     return { message: 'User deleted successfully' };
   }
 
+async getUserMonthlyStatusCounts(): Promise<any> {
+  const result = await this.userRepository
+    .createQueryBuilder('user')
+    .select("DATE_FORMAT(user.created_at, '%Y-%m')", 'month')
+    .addSelect(
+      `SUM(CASE WHEN user.course_status = 'Active' THEN 1 ELSE 0 END)`,
+      'active',
+    )
+    .addSelect(
+      `SUM(CASE WHEN user.course_status != 'Active' THEN 1 ELSE 0 END)`,
+      'inactive',
+    )
+    .groupBy("DATE_FORMAT(user.created_at, '%Y-%m')")
+    .orderBy("DATE_FORMAT(user.created_at, '%Y-%m')", 'ASC')
+    .getRawMany();
+
+  return [result.map((row) => ({
+    month: row.month,
+    count: Number(row.active),
+  })) , result.map((row) => ({
+    month: row.month,
+    count: Number(row.inactive),
+  })) ];
+}
+
+
+  async cancle_subscripe(id){
+
+    const update_status_course = await this.userRepository.update({user_id : id} , {course_status : 'MustSubscribe'})
+
+    return update_status_course
+  }
 }

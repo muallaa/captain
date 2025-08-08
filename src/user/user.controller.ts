@@ -51,21 +51,28 @@ export class UserController {
   }
 
 
+  
+   @Get('monthly-status-count')
+  async getUserMonthlyStatusCounts() {
+    return await this.userService.getUserMonthlyStatusCounts();
+  }
 
   @Post()
   create(@Body() createUserDto: CreateUserDto) {
     return this.userService.create(createUserDto);
   }
 
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.userService.findOne(+id);
+  }
+  
   @Get()
   findAll() {
     return this.userService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.userService.findOne(+id);
-  }
+  
 
 
   @Patch('')
@@ -122,4 +129,14 @@ export class UserController {
     }
     return await this.userService.remove(id);
   }
+
+  @Delete('/cancle_subscripe/:id')
+  async cancle(
+    @Param('id' , ParseIntPipe) id : number
+  ){
+    return await this.userService.cancle_subscripe(id)
+  }
+  
+
+
 }

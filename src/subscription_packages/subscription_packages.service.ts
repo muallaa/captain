@@ -4,16 +4,27 @@ import { UpdateSubscriptionPackageDto } from './dto/update-subscription_package.
 import { InjectRepository } from '@nestjs/typeorm';
 import { SubscriptionPackage } from './entities/subscription_package.entity';
 import { Repository } from 'typeorm';
+import { User } from 'src/user/entities/user.entity';
 
 @Injectable()
 export class SubscriptionPackagesService {
 
   constructor(
-    @InjectRepository(SubscriptionPackage) private RepoSubscrib : Repository<SubscriptionPackage>
+    @InjectRepository(SubscriptionPackage) private RepoSubscrib : Repository<SubscriptionPackage>,
+     @InjectRepository(User)
+  private userRepo: Repository<User>,
   ){}
 
-  create(createSubscriptionPackageDto: CreateSubscriptionPackageDto) {
-    return 'This action adds a new subscriptionPackage';
+  async create(createSubscriptionPackageDto: CreateSubscriptionPackageDto , file ) {
+   
+  
+    createSubscriptionPackageDto.image = file.path
+
+    const create = await this.RepoSubscrib.create(createSubscriptionPackageDto)
+
+    this.RepoSubscrib.save(create)
+
+    return create
   }
 
   async findAll() {
@@ -31,11 +42,43 @@ export class SubscriptionPackagesService {
     return `This action returns a #${id} subscriptionPackage`;
   }
 
-  update(id: number, updateSubscriptionPackageDto: UpdateSubscriptionPackageDto) {
-    return `This action updates a #${id} subscriptionPackage`;
+async update(id: number, updateSubscriptionPackageDto: UpdateSubscriptionPackageDto, file?: Express.Multer.File) {
+  const existing = await this.RepoSubscrib.findOneBy({ package_id : id });
+
+  if (!existing) {
+    throw new NotFoundException('الباقة غير موجودة');
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} subscriptionPackage`;
+  if (file) {
+    updateSubscriptionPackageDto.image = `Uploads/${file.filename}`;
   }
+
+  const updated = Object.assign(existing, updateSubscriptionPackageDto);
+  return this.RepoSubscrib.save(updated);
+}
+
+
+ async remove(id: number) {
+  const existing = await this.RepoSubscrib.findOne({
+    where: { package_id: id },
+    relations: ['userSubscriptions', 'userSubscriptions.user'],
+  });
+
+  if (!existing) {
+    throw new NotFoundException('الباقة غير موجودة');
+  }
+
+  // ✅ تحديث المستخدمين
+  const usersToUpdate = existing.userSubscriptions.map((sub) => sub.user);
+  for (const user of usersToUpdate) {
+    user.course_status = 'MustSubscribe';
+    await this.userRepo.save(user);
+  }
+
+  // ✅ حذف الباقة
+  await this.RepoSubscrib.delete({ package_id: id });
+
+  return { message: 'تم حذف الباقة وتحديث حالة المستخدمين' };
+}
+
 }

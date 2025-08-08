@@ -18,10 +18,13 @@ export class SubscriptionPackage {
   @Column({ type: 'decimal', precision: 10, scale: 2 })
   price: number;
 
+  @Column()
+  image : string
+
   @CreateDateColumn()
   created_at: Date;
 
   
-  @OneToMany(() => UserSubscription, (userSubscription) => userSubscription.subscription_package)
+  @OneToMany(() => UserSubscription, (userSubscription) => userSubscription.subscription_package , { cascade : true , eager : true})
   userSubscriptions: UserSubscription[];
 }

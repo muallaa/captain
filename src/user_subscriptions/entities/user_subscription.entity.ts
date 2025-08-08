@@ -39,7 +39,7 @@ export class UserSubscription {
   @JoinColumn({ name: 'user_id' })
   user: User;
 
-  @ManyToOne(() => SubscriptionPackage, (subscriptionPackage) => subscriptionPackage.userSubscriptions)
+  @ManyToOne(() => SubscriptionPackage, (subscriptionPackage) => subscriptionPackage.userSubscriptions , { onDelete : 'CASCADE'})
   @JoinColumn({ name: 'package_id' })
   subscription_package: SubscriptionPackage;
 }

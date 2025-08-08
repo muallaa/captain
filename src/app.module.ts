@@ -28,6 +28,8 @@ import { WorkoutProgram } from './workout_programs/entities/workout_program.enti
 import configuration from './config/configuration';
 import { JwtModule } from '@nestjs/jwt';
 import { RefreshToken } from './user/entities/refresh-token.entity';
+import { VideosModule } from './videos/videos.module';
+import { Video } from './videos/entities/video.entity';
 
 @Module({
   imports: [
@@ -59,13 +61,13 @@ import { RefreshToken } from './user/entities/refresh-token.entity';
         username: config.get('DB_USERNAME'),
         password: config.get('DB_PASSWORD'),
         database: config.get('DB_DATABSE'),
-        entities: [User, RefreshToken, CoachCommunication, ExerciseVideo, Exercise, NutritionPlan, PasswordResetCode, SubscriptionPackage, SupplementPlan, UserBodyPicture, UserSubscription, WorkoutProgram],
+        entities: [User, RefreshToken, CoachCommunication, ExerciseVideo, Exercise, NutritionPlan, PasswordResetCode, SubscriptionPackage, SupplementPlan, UserBodyPicture, UserSubscription, WorkoutProgram , Video],
         synchronize: true
       }),
       inject: [ConfigService]
     }),
 
-    UserModule, ExercisesModule, ExerciseVideosModule, NutritionPlansModule, PasswordResetCodesModule, SubscriptionPackagesModule, SupplementPlansModule, UserBodyPicturesModule, UserSubscriptionsModule, WorkoutProgramsModule, CoachCommunicationsModule],
+    UserModule, ExercisesModule, ExerciseVideosModule, NutritionPlansModule, PasswordResetCodesModule, SubscriptionPackagesModule, SupplementPlansModule, UserBodyPicturesModule, UserSubscriptionsModule, WorkoutProgramsModule, CoachCommunicationsModule, VideosModule],
 
   controllers: [AppController],
   providers: [AppService],

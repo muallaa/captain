@@ -13,7 +13,7 @@ async function bootstrap() {
     credentials: true, // Allow cookies and credentials
   })
 
-  app.useGlobalPipes(new ValidationPipe())
+  app.useGlobalPipes(new ValidationPipe({ transform: true }))
   app.useStaticAssets(join(__dirname, '..', 'uploads'), { prefix: '/uploads' });
 
   await app.listen(process.env.PORT ?? 3000 , '0.0.0.0');

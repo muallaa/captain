@@ -50,7 +50,7 @@ async update(id: number, updateSubscriptionPackageDto: UpdateSubscriptionPackage
   }
 
   if (file) {
-    updateSubscriptionPackageDto.image = `Uploads/${file.filename}`;
+    updateSubscriptionPackageDto.image = `uploads/${file.filename}`;
   }
 
   const updated = Object.assign(existing, updateSubscriptionPackageDto);
